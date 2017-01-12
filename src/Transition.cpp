@@ -3,7 +3,7 @@
 //
 
 #include "Transition.h"
-#include <iostream>
+//#include <iostream>
 
 Transition::Transition(long stepsPerSecond, TransitionValueChangedCallback callback) {
     setStepsPerSecond(stepsPerSecond);
@@ -67,12 +67,11 @@ void Transition::loop(){
         unsigned long now = millis();
         unsigned long timeDelta = now - lastChangeTimeStamp;
 
-        std::cout << "[LOOP] now=" << now << ": lastChangeTimeStamp=" << lastChangeTimeStamp << "; timeDelta=" << timeDelta << ": millisUntilNextChange=" << millisUntilNextChange << std::endl;
+//        std::cout << "[LOOP] now=" << now << ": lastChangeTimeStamp=" << lastChangeTimeStamp << "; timeDelta=" << timeDelta << ": millisUntilNextChange=" << millisUntilNextChange << std::endl;
 
         if(timeDelta >= millisUntilNextChange) {
-            std::cout << "-----DO CALCULATION" << std::endl;
+//            std::cout << "-----DO CALCULATION" << std::endl;
             unsigned long transitionDelta = now - transitionStartTime;     // TODO: Overflow risk?
-            long transitionValueDelta = getTarget() - transitionStartValue;
             long steps = currentStepsPerSecond * transitionDelta / 1000;
             if (steps > 0) {
                 long newValue = transitionStartValue + steps;
