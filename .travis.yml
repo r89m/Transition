@@ -17,6 +17,8 @@ install:
     - pip install -U platformio
     - cd ../
     - git clone https://github.com/r89m/ArduinoFrameworkFake.git
+    # Login to PioPlus
+    - pio account login --username $PIO_PLUS_USERNAME --password $PIO_PLUS_PASSWORD
 
 before_script:
     # Run tests
