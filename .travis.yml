@@ -2,8 +2,17 @@ language: python
 python:
     - "2.7"
 
+sudo: required
+
+addons:
+    apt:
+        sources:
+            - ubuntu-toolchain-r-test
+        packages:
+            - gcc-4.8
+            - g++-4.8
+
 # Cache PlatformIO packages using Travis CI container-based infrastructure
-sudo: false
 cache:
     directories:
         - "~/.platformio"
@@ -13,7 +22,16 @@ env:
     - PLATFORMIO_CI_SRC=examples/LEDTransition/LEDTransition.ino
     - PLATFORMIO_CI_SRC=examples/LEDTransition/LEDTransition.ino
 
+before_install:
+    # Setup Test Environment
+    - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 90
+    - sudo update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-4.8 90
+
 install:
+    # Check GCC versions
+    - g++ --version
+    - gcov --version
+
     - pip install -U platformio
     - cd ../
     - git clone https://github.com/r89m/ArduinoFrameworkFake.git
