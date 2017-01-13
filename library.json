@@ -1,0 +1,12 @@
+{
+  "name": "Transition",
+  "keywords": "transition",
+  "description": "Easily animate the transition from one value to another",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/r89m/Transition.git"
+  },
+  "version": "1.0.0",
+  "frameworks": "arduino",
+  "platforms": "*"
+}
