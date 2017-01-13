@@ -30,6 +30,7 @@ before_install:
 install:
     # Check GCC versions
     - g++ --version
+    - gcc --version
     - gcov --version
 
     - pip install -U platformio
