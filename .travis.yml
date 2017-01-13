@@ -47,4 +47,4 @@ before_script:
 
 script:
     # Check that the example builds
-    - platformio ci --lib "." --board=uno --project-option="build_flags=-Werror"
+    - platformio ci --lib "." --board=uno --project-option="build_flags=-Werror" --verbose
