@@ -7,10 +7,12 @@
 
 bool callback_called;
 int callback_value;
+unsigned int callback_count = 0;
 
 void onTransitionValueChange(Transition& transition, long newValue){
     callback_called = true;
     callback_value = newValue;
+    callback_count++;
 }
 
 Transition transition(10, onTransitionValueChange);
@@ -27,7 +29,11 @@ void setUp(void) {
     // Initialise Transition
     transition.init(50);
 
+    // Reset callback variables
     reset_callback();
+
+    // Reset callback_count
+    callback_count = 0;
 
     AxxTest::initialiseArduinoMock();
 }
@@ -115,7 +121,106 @@ void test_stepTowardsValue(){
     reset_callback();
 
     transition.loop();
+}
 
+void test_stepTowardsValueDescending(){
+
+    // Ensure that setting the target takes place at T=47ms
+    When(Method(ArduinoHardwareMock, millis)).AlwaysReturn(47);
+
+    transition.setTarget(0);
+
+    // Now pass in some later times
+    When(Method(ArduinoHardwareMock, millis)).Return(58, 97, 139, 167, 246, 247, 248, 300, 4304, 5200).AlwaysReturn(5500);
+
+    transition.loop();
+    TEST_ASSERT_EQUAL(false, callback_called);
+
+    transition.loop();
+    TEST_ASSERT_EQUAL(false, callback_called);
+
+    transition.loop();
+    TEST_ASSERT_EQUAL(false, callback_called);
+
+    transition.loop();
+    TEST_ASSERT_EQUAL(true, callback_called);
+    TEST_ASSERT_EQUAL(49, callback_value);
+    reset_callback();
+
+    transition.loop();
+    TEST_ASSERT_EQUAL(false, callback_called);
+
+    transition.loop();
+    TEST_ASSERT_EQUAL(true, callback_called);
+    TEST_ASSERT_EQUAL(48, callback_value);
+    reset_callback();
+
+    transition.loop();
+    TEST_ASSERT_EQUAL(false, callback_called);
+
+    transition.loop();
+    TEST_ASSERT_EQUAL(false, callback_called);
+
+    transition.loop();
+    TEST_ASSERT_EQUAL(true, callback_called);
+    TEST_ASSERT_EQUAL(8, callback_value);
+    reset_callback();
+
+    transition.loop();
+    TEST_ASSERT_EQUAL(true, callback_called);
+    TEST_ASSERT_EQUAL(-1, callback_value);      //TODO: This should equal 0
+    reset_callback();
+
+    transition.loop();
+}
+
+void test_stepTowardsValueTriggerEveryStep(){
+
+    // Ensure that setting the target takes place at T=0ms
+    When(Method(ArduinoHardwareMock, millis)).AlwaysReturn(0);
+
+    transition.setTarget(100);
+
+    for(int i = 0; i < 5100; i++){
+        When(Method(ArduinoHardwareMock, millis)).AlwaysReturn(i);
+        transition.loop();
+    }
+
+    TEST_ASSERT_EQUAL(50, callback_count);
+    TEST_ASSERT_EQUAL(100, callback_value);
+}
+
+void test_stepTowardsValueLongDelayBetweenCalls(){
+
+    // Reset callback_count
+    callback_count = 0;
+
+    // Ensure that setting the target takes place at T=0ms
+    When(Method(ArduinoHardwareMock, millis)).AlwaysReturn(0);
+
+    transition.setTarget(100);
+
+    for(int i = 0; i < 5500; i+=500){
+        When(Method(ArduinoHardwareMock, millis)).AlwaysReturn(i);
+        transition.loop();
+    }
+
+    TEST_ASSERT_EQUAL(10, callback_count);
+    TEST_ASSERT_EQUAL(100, callback_value);
+}
+
+void test_getDirection(){
+
+    // Check that it starts stationary
+    TEST_ASSERT_EQUAL(Transition::DirectionStationary, transition.getDirection());
+
+    transition.setTarget(100);
+    // Check that it is now ascending
+    TEST_ASSERT_EQUAL(Transition::DirectionAscending, transition.getDirection());
+
+    transition.setTarget(40);
+    // Check that it is now descending
+    TEST_ASSERT_EQUAL(Transition::DirectionDescending, transition.getDirection());
 }
 
 
@@ -127,6 +232,10 @@ int main(int argc, char **argv) {
     RUN_TEST(test_setValueAndNoCallbackIfSameValue);
     RUN_TEST(test_setAndGetTarget);
     RUN_TEST(test_stepTowardsValue);
+    RUN_TEST(test_stepTowardsValueDescending);
+    RUN_TEST(test_stepTowardsValueTriggerEveryStep);
+    RUN_TEST(test_stepTowardsValueLongDelayBetweenCalls);
+    RUN_TEST(test_getDirection);
     UNITY_END();
 
     return 0;

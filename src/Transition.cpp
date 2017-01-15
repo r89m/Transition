@@ -74,7 +74,12 @@ void Transition::loop(){
             unsigned long transitionDelta = now - transitionStartTime;     // TODO: Overflow risk?
             long steps = currentStepsPerSecond * transitionDelta / 1000;
             if (steps > 0) {
-                long newValue = transitionStartValue + steps;
+                long newValue;
+                if(getDirection() == Transition::DirectionAscending){
+                    newValue = transitionStartValue + steps;
+                } else {
+                    newValue = transitionStartValue - steps;
+                }
                 setValue(newValue);
                 lastChangeTimeStamp = transitionStartTime + (steps * millisUntilNextChange);
                 nextChangeTimeStamp += millisUntilNextChange;
@@ -101,4 +106,15 @@ bool Transition::operator!=(const Transition &compareObject){
 
 void Transition::updateStepDelay() {
     this->millisUntilNextChange = 1000 / this->currentStepsPerSecond;
+}
+
+int8_t Transition::getDirection() {
+
+    if(getValue() > getTarget()){
+        return DirectionDescending;
+    } else if (getValue() < getTarget()){
+        return DirectionAscending;
+    } else {
+        return DirectionStationary;
+    }
 }

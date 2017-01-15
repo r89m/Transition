@@ -40,11 +40,16 @@ public:
     void setValue(long newValue);
     long getValue();
     long getTarget();
+    int8_t getDirection();
     void loop();
     void reset();
 
     bool operator == (const Transition& compareObject);
     bool operator != (const Transition& compareObject);
+
+    static const int8_t DirectionAscending = 1;
+    static const int8_t DirectionDescending = -1;
+    static const int8_t DirectionStationary = 0;
 
 };
 
