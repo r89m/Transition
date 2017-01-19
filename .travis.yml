@@ -35,7 +35,7 @@ install:
     - gcov --version
 
     # Install Coveralls
-    - pip install --user cpp-coveralls
+    - pip install -U cpp-coveralls
 
     # Install PlatformIO
     - pip install -U platformio
