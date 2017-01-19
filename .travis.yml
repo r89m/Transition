@@ -34,16 +34,29 @@ install:
     - gcc --version
     - gcov --version
 
+    # Install Coveralls
+    - pip install --user cpp-coveralls
+
+    # Install PlatformIO
     - pip install -U platformio
+
+    # Install ArduinoFrameworkFake
     - cd ../
     - git clone https://github.com/r89m/ArduinoFrameworkFake.git
     - cd $TRAVIS_BUILD_DIR
+
     # Login to PioPlus
     - pio account login --username $PIO_PLUS_USERNAME --password $PIO_PLUS_PASSWORD
 
 before_script:
     # Run tests
     - platformio test -e native
+
+    # Run tests again with coverage
+    - g++ test/test_1/test_1.cpp -I ~/.platformio/packages/tool-unity/ -I src -I ../ArduinoFrameworkFake/src/ -std=c++11 -o run -DUNIT_TEST src/Transition.cpp ../ArduinoFrameworkFake/src/Arduino.cpp ../ArduinoFrameworkFake/src/AxxTest.cpp ~/.platformio/packages/tool-unity/unity.c -fpermissive --coverage -g -O0
+
+    # Upload code coverage report
+    - coveralls --exclude tests/ --exclude examples/ --gcov-options '\-lp'
 
 script:
     # Check that the example builds
