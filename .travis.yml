@@ -54,6 +54,7 @@ before_script:
 
     # Run tests again with coverage
     - g++ test/test_1/test_1.cpp -I ~/.platformio/packages/tool-unity/ -I src -I ../ArduinoFrameworkFake/src/ -std=c++11 -o run -DUNIT_TEST src/Transition.cpp ../ArduinoFrameworkFake/src/Arduino.cpp ../ArduinoFrameworkFake/src/AxxTest.cpp ~/.platformio/packages/tool-unity/unity.c -fpermissive --coverage -g -O0
+    - ./run
 
     # Upload code coverage report
     - coveralls --exclude tests/ --exclude examples/ --gcov-options '\-lp'
