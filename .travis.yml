@@ -57,7 +57,7 @@ before_script:
     - ./run
 
     # Upload code coverage report
-    - coveralls --exclude tests/ --exclude examples/ --gcov-options '\-lp'
+    - coveralls --exclude test/ --exclude examples/ --gcov-options '\-lp'
 
 script:
     # Check that the example builds
