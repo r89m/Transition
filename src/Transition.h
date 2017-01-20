@@ -24,10 +24,10 @@ private:
     long transitionStartValue;
     unsigned long transitionStartTime;
 
-    long stepsPerSecond;
+    unsigned long defaultStepsPerSecond;
     TransitionValueChangedCallback callback;
 
-    long currentStepsPerSecond;
+    unsigned long currentStepsPerSecond;
 
     void updateStepDelay();
 
@@ -36,16 +36,15 @@ public:
     void init(long initialValue);
     void setTarget(long newTarget);
     void setTarget(long newTarget, unsigned long durationMilliseconds);
-    void setStepsPerSecond(long stepsPerSecond);
+    void setTargetAndSteps(long newTarget, long stepsPerSecond);
+    void setDefaultStepsPerSecond(long stepsPerSecond);
     void setValue(long newValue);
     long getValue();
     long getTarget();
     int8_t getDirection();
     void loop();
-    void reset();
 
-    bool operator == (const Transition& compareObject);
-    bool operator != (const Transition& compareObject);
+    bool is(const Transition& compareObject);
 
     static const int8_t DirectionAscending = 1;
     static const int8_t DirectionDescending = -1;

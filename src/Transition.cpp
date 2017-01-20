@@ -6,7 +6,7 @@
 //#include <iostream>
 
 Transition::Transition(long stepsPerSecond, TransitionValueChangedCallback callback) {
-    setStepsPerSecond(stepsPerSecond);
+    setDefaultStepsPerSecond(stepsPerSecond);
     this->callback = callback;
 }
 
@@ -16,25 +16,36 @@ void Transition::init(long initialValue) {
 }
 
 void Transition::setTarget(long newTarget) {
+
+    setTargetAndSteps(newTarget, defaultStepsPerSecond);
+}
+
+void Transition::setTarget(long newTarget, unsigned long durationMilliseconds) {
+
+    long valueDelta = abs(newTarget - getValue());
+    long stepsPerSecond = (valueDelta * 1000) / durationMilliseconds;
+
+    setTargetAndSteps(newTarget, stepsPerSecond);
+}
+
+void Transition::setTargetAndSteps(long newTarget, long stepsPerSecond){
+
     this->targetValue = newTarget;
     this->transitionStartValue = getValue();
+    this->currentStepsPerSecond = stepsPerSecond;
 
     unsigned long now = millis();
 
     this->transitionStartTime = now;
     this->lastChangeTimeStamp = now;
     this->nextChangeTimeStamp = now + this->millisUntilNextChange;
-}
-
-void Transition::setTarget(long newTarget, unsigned long durationMilliseconds) {
-    this->targetValue = newTarget;
 
     updateStepDelay();
 }
 
-void Transition::setStepsPerSecond(long stepsPerSecond) {
+void Transition::setDefaultStepsPerSecond(long stepsPerSecond) {
 
-    this->stepsPerSecond = stepsPerSecond;
+    this->defaultStepsPerSecond = stepsPerSecond;
     this->currentStepsPerSecond = stepsPerSecond;
 
     updateStepDelay();
@@ -90,18 +101,10 @@ void Transition::loop(){
 
 // TODO: loop not called for a long time - clamp value to getTarget()
 
-void Transition::reset(){
-    this->currentStepsPerSecond = stepsPerSecond;
-}
+bool Transition::is(const Transition &compareObject){
 
-bool Transition::operator==(const Transition &compareObject){
-
-    return false;
-}
-
-bool Transition::operator!=(const Transition &compareObject){
-
-    return !(*this == compareObject);
+    // Compare pointers
+    return (this == &compareObject);
 }
 
 void Transition::updateStepDelay() {

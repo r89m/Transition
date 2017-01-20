@@ -6,21 +6,25 @@
 #ifdef UNIT_TEST
 
 bool callback_called;
+Transition* callback_transition;
 int callback_value;
 unsigned int callback_count = 0;
 
 void onTransitionValueChange(Transition& transition, long newValue){
     callback_called = true;
+    callback_transition = &transition;
     callback_value = newValue;
     callback_count++;
 }
 
 Transition transition(10, onTransitionValueChange);
+Transition transition2(10, onTransitionValueChange);
 
 void reset_callback(){
 
     // Reset callback function state
     callback_called = false;
+    callback_transition = new Transition(10000, onTransitionValueChange);
     callback_value = 0;
 }
 
@@ -209,6 +213,22 @@ void test_stepTowardsValueLongDelayBetweenCalls(){
     TEST_ASSERT_EQUAL(100, callback_value);
 }
 
+void test_stepTowardsValueCustomDuration(){
+
+    When(Method(ArduinoHardwareMock, millis)).AlwaysReturn(0);
+
+    // Transition from 50 to 70 over 4 seconds
+    transition.setTarget(70, 4000);
+
+    for(int i = 0; i < 20; i++){
+        When(Method(ArduinoHardwareMock, millis)).AlwaysReturn(i * 250);
+        transition.loop();
+    }
+
+    TEST_ASSERT_EQUAL(16, callback_count);
+    TEST_ASSERT_EQUAL(70, callback_value);
+}
+
 void test_getDirection(){
 
     // Check that it starts stationary
@@ -223,6 +243,26 @@ void test_getDirection(){
     TEST_ASSERT_EQUAL(Transition::DirectionDescending, transition.getDirection());
 }
 
+void test_equality(){
+
+    When(Method(ArduinoHardwareMock, millis)).AlwaysReturn(100);
+
+    transition.setTarget(100);
+    transition2.setTarget(20);
+
+    When(Method(ArduinoHardwareMock, millis)).AlwaysReturn(200);
+
+    transition.loop();
+
+    TEST_ASSERT_TRUE(transition.is(*callback_transition));
+    TEST_ASSERT_FALSE(transition2.is(*callback_transition));
+
+    transition2.loop();
+
+    TEST_ASSERT_TRUE(transition2.is(*callback_transition));
+    TEST_ASSERT_FALSE(transition.is(*callback_transition));
+}
+
 
 int main(int argc, char **argv) {
     UNITY_BEGIN();
@@ -235,7 +275,9 @@ int main(int argc, char **argv) {
     RUN_TEST(test_stepTowardsValueDescending);
     RUN_TEST(test_stepTowardsValueTriggerEveryStep);
     RUN_TEST(test_stepTowardsValueLongDelayBetweenCalls);
+    RUN_TEST(test_stepTowardsValueCustomDuration);
     RUN_TEST(test_getDirection);
+    RUN_TEST(test_equality);
     UNITY_END();
 
     return 0;
