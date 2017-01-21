@@ -58,6 +58,7 @@ before_script:
 
     # Upload code coverage report
     - coveralls --exclude test/ --exclude examples/ --gcov-options '\-lp'
+    - bash <(curl -s https://codecov.io/bash)
 
 script:
     # Check that the example builds
