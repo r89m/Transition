@@ -24,7 +24,7 @@ void reset_callback(){
 
     // Reset callback function state
     callback_called = false;
-    callback_transition = new Transition(10000, onTransitionValueChange);
+    callback_transition = NULL;
     callback_value = 0;
 }
 
